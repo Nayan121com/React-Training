@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProductPage</title>
+    <script src="babel.min.js"></script>
+    <script src="react.development.js"></script>
+    <script src="react-dom.development.js"></script>
+    <script type="text/babel">
+      var keyId = 0;
+        const ProductPage = () => {
+          const [productCount, setProductCount] = React.useState(0);
+          const [productName, setProductName] = React.useState('');
+          const [productList, setProductList] = React.useState([]);
+          console.log(productList);
+          const removeProduct = () => (
+            setProductList([productList.filter(product => (
+              product.id !== products.id
+            ))])
+        )
+          return(
+            <>
+              <h1>Products</h1><span>[productCount]</span>
+              <div>
+                <input value={productName} onChange={(e) => setProductName(e.target.value)} />
+                <button onClick={(e) => setProductList([...productList, {id: keyId++, name: productName}])}>Add</button>
+              </div>
+              <ul>{productList.map(products => (
+                <li key={products.id}>{products.name} {' '} <button onClick={() => setProductList(productList.filter(product => (
+                  product.id !== products.id
+                  ))
+                )}>X</button></li>  
+              ))}</ul>
+            </>
+              )
+        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<ProductPage/>)
+    </script>
+</head>
+<body>
+    <div id="root">
+
+    </div>
+</body>
+</html>
