@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Projects</title>
+    <script src="babel.min.js"></script>
+    <script src="react.development.js"></script>
+    <script src="react-dom.development.js"></script>
+    <script src="state-manager.js"></script>
+    <!-- <script src="state-manager.js"></script> -->
+    <script type="text/babel">
+      //  Project Component
+      const ProjectItem = ({ project }) => {
+        return (
+          <>
+            <li key={project.id}>{project.name}</li>
+          </>
+        );
+      };
+      const Project = ({ projects, AddNewProject }) => {
+        const addNewProjectRef = React.useRef();
+        return (
+          <>
+            <section>
+              <input type="text" ref={addNewProjectRef} />
+              <button
+                onClick={() => AddNewProject(addNewProjectRef.current.value)}
+              >
+                Add Project
+              </button>
+            </section>
+            <section>
+              <ul>
+                {projects.map((project) => (
+                  <ProjectItem project={project} />
+                ))}
+              </ul>
+            </section>
+          </>
+        );
+      };
+      let maxId = 0;
+      //  ActionCreators
+      const projectActionCreators = {
+        AddNewProject(projectName) {
+          const newProject = {
+            id: ++maxId,
+            name: projectName,
+          };
+          const action = { type: "ADDPROJECT", payload: newProject };
+          return action;
+        },
+      };
+      //  Reducer
+      let initialState = [];
+      function projectReducer(currentState = initialState, action) {
+        if (action.type == "ADDPROJECT") {
+          return [...currentState, action.payload];
+        }
+        return currentState;
+      }
+
+      var root = ReactDOM.createRoot(document.getElementById("root"));
+      //  storeObj
+      const store = StateManager.createStore(projectReducer);
+      const projectActionDispacter = StateManager.bindActionCreators(
+        projectActionCreators,
+        store.dispatch
+      );
+      function renderApp() {
+        const projects = store.getState();
+        root.render(
+          <Project projects={projects} {...projectActionDispacter} />
+        );
+      }
+      renderApp();
+      //  subscribe
+      store.subscribe(renderApp);
+    </script>
+  </head>
+  <body>
+    <h1>Project</h1>
+    <div id="root"></div>
+  </body>
+</html>
