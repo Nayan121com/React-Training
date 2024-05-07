@@ -36,28 +36,26 @@
     </script>
     <!-- 
         1. Initial Version
-
+        2.
+        3. Remove the dependency on the 'store' in the component
+        4. Introducing 'action creators'
 
      -->
     <script src="babel.min.js"></script>
     <script src="react.development.js"></script>
     <script src="react-dom.development.js"></script>
     <script type="text/babel">
-        const Counter = ({store}) => {
-
-            // actions
-            let inc_action = { type : 'INCREMENT' },
-                dec_action = { type : 'DECREMENT' };
+        const Counter = ({value, dispatch, actionCreators}) => {
 
             const onDecrementClick = () => {
-                store.dispatch(dec_action)
+                let action = actionCreators.decrement()
+                dispatch(action)
             };
 
             const onIncrementClick = () => {
-                store.dispatch(inc_action);
+                let action = actionCreators.increment()
+                dispatch(action);
             };
-
-            const value = store.getState();
 
             return (
                 <>
@@ -76,13 +74,26 @@
             if (action.type === 'DECREMENT') return currentState - 1;
             return currentState;
         }
+
+        let counterActionCreators = {
+            decrement(){
+                let dec_action = { type : 'DECREMENT' };
+                return dec_action;
+            },
+            increment(){
+                let inc_action = { type : 'INCREMENT' };
+                return inc_action;
+            }
+        }
         
         // create the store
         let store = StateManager.createStore(counterReducer)
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
+
         function renderApp(){
-            root.render(<Counter store={store}/>)
+            const value = store.getState()
+            root.render(<Counter value={value} dispatch={store.dispatch} actionCreators={counterActionCreators}/>)
         }
         renderApp()
         store.subscribe(renderApp);

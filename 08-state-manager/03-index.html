@@ -36,28 +36,25 @@
     </script>
     <!-- 
         1. Initial Version
-
+        2.
+        3. Remove the dependency on the 'store' in the component
 
      -->
     <script src="babel.min.js"></script>
     <script src="react.development.js"></script>
     <script src="react-dom.development.js"></script>
     <script type="text/babel">
-        const Counter = ({store}) => {
-
-            // actions
-            let inc_action = { type : 'INCREMENT' },
-                dec_action = { type : 'DECREMENT' };
+        const Counter = ({value, dispatch}) => {
 
             const onDecrementClick = () => {
-                store.dispatch(dec_action)
+                let dec_action = { type : 'DECREMENT' };
+                dispatch(dec_action)
             };
 
             const onIncrementClick = () => {
-                store.dispatch(inc_action);
+                let inc_action = { type : 'INCREMENT' };
+                dispatch(inc_action);
             };
-
-            const value = store.getState();
 
             return (
                 <>
@@ -81,8 +78,10 @@
         let store = StateManager.createStore(counterReducer)
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
+
         function renderApp(){
-            root.render(<Counter store={store}/>)
+            const value = store.getState()
+            root.render(<Counter value={value} dispatch={store.dispatch}/>)
         }
         renderApp()
         store.subscribe(renderApp);

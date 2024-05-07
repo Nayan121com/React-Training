@@ -36,32 +36,34 @@
     </script>
     <!-- 
         1. Initial Version
-
+        2.
+        3. Remove the dependency on the 'store' in the component
+        4. Introducing 'action creators'
+        5. Introducing 'action dispatchers'
+        6. Payload with 'action creators' & 'action dispatchers'
 
      -->
     <script src="babel.min.js"></script>
     <script src="react.development.js"></script>
     <script src="react-dom.development.js"></script>
     <script type="text/babel">
-        const Counter = ({store}) => {
+        const Counter = ({value, actionDispatchers}) => {
 
-            // actions
-            let inc_action = { type : 'INCREMENT' },
-                dec_action = { type : 'DECREMENT' };
+            const [delta, setDelta] = React.useState(0);
 
             const onDecrementClick = () => {
-                store.dispatch(dec_action)
+                actionDispatchers.decrement(delta)
             };
 
             const onIncrementClick = () => {
-                store.dispatch(inc_action);
+                actionDispatchers.increment(delta);
             };
-
-            const value = store.getState();
 
             return (
                 <>
                     <h3>Counter</h3>
+                    <label htmlFor="">Delta :</label>
+                    <input type="number" value={delta} onChange={ evt => setDelta(parseInt(evt.target.value))} />
                     <hr/>
                     <button onClick={onDecrementClick}>Decrement</button>
                     <span> [{value}] </span>
@@ -72,17 +74,49 @@
 
         // reducer
         function counterReducer(currentState = 0, action){
-            if (action.type === 'INCREMENT') return currentState + 1;
-            if (action.type === 'DECREMENT') return currentState - 1;
+            if (action.type === 'INCREMENT') return currentState + action.payload;
+            if (action.type === 'DECREMENT') return currentState - action.payload;
             return currentState;
         }
+
+        let counterActionCreators = {
+            decrement(delta){
+                let dec_action = { type : 'DECREMENT', payload : delta };
+                return dec_action;
+            },
+            increment(delta){
+                let inc_action = { type : 'INCREMENT' , payload : delta };
+                return inc_action;
+            }
+        }
         
+        // action dispatchers
+        function bindCounterActionCreators(actionCreators, dispatch){
+            const counterActionDispatchers = {
+                decrement(delta){
+                    let action = actionCreators.decrement(delta)
+                    dispatch(action)
+                },
+                increment(delta){
+                    let action = actionCreators.increment(delta)
+                    dispatch(action);
+                }
+            }
+            return counterActionDispatchers;
+        }
+
+
         // create the store
         let store = StateManager.createStore(counterReducer)
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
+        
+        // create the action dispatchers
+        const counterActionDispatchers = bindCounterActionCreators(counterActionCreators, store.dispatch);
+
         function renderApp(){
-            root.render(<Counter store={store}/>)
+            const value = store.getState()
+            root.render(<Counter value={value} actionDispatchers={counterActionDispatchers}/>)
         }
         renderApp()
         store.subscribe(renderApp);

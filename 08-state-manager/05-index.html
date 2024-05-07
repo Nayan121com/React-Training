@@ -36,28 +36,25 @@
     </script>
     <!-- 
         1. Initial Version
-
+        2.
+        3. Remove the dependency on the 'store' in the component
+        4. Introducing 'action creators'
+        5. Introducing 'action dispatchers'
 
      -->
     <script src="babel.min.js"></script>
     <script src="react.development.js"></script>
     <script src="react-dom.development.js"></script>
     <script type="text/babel">
-        const Counter = ({store}) => {
-
-            // actions
-            let inc_action = { type : 'INCREMENT' },
-                dec_action = { type : 'DECREMENT' };
+        const Counter = ({value, actionDispatchers}) => {
 
             const onDecrementClick = () => {
-                store.dispatch(dec_action)
+                actionDispatchers.decrement()
             };
 
             const onIncrementClick = () => {
-                store.dispatch(inc_action);
+                actionDispatchers.increment();
             };
-
-            const value = store.getState();
 
             return (
                 <>
@@ -76,13 +73,45 @@
             if (action.type === 'DECREMENT') return currentState - 1;
             return currentState;
         }
+
+        let counterActionCreators = {
+            decrement(){
+                let dec_action = { type : 'DECREMENT' };
+                return dec_action;
+            },
+            increment(){
+                let inc_action = { type : 'INCREMENT' };
+                return inc_action;
+            }
+        }
         
+        // action dispatchers
+        function bindCounterActionCreators(actionCreators, dispatch){
+            const counterActionDispatchers = {
+                decrement(){
+                    let action = actionCreators.decrement()
+                    dispatch(action)
+                },
+                increment(){
+                    let action = actionCreators.increment()
+                    dispatch(action);
+                }
+            }
+            return counterActionDispatchers;
+        }
+
+
         // create the store
         let store = StateManager.createStore(counterReducer)
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
+        
+        // create the action dispatchers
+        const counterActionDispatchers = bindCounterActionCreators(counterActionCreators, store.dispatch);
+
         function renderApp(){
-            root.render(<Counter store={store}/>)
+            const value = store.getState()
+            root.render(<Counter value={value} actionDispatchers={counterActionDispatchers}/>)
         }
         renderApp()
         store.subscribe(renderApp);
